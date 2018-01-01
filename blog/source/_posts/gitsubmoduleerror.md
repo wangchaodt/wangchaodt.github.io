@@ -1,7 +1,8 @@
 ---
 title: "记一次fatal: Pathspec 'blog/themes/next/1' is in submodule 'blog/themes/next'"
 date: 2017-12-30 21:47:46
-tags: git
+categories: stackoverflow
+tags: [git,stackoverflow]
 ---
 最近捣鼓hexo博客，发现next主题不在版本库中无法被add进去所以就想强制添加发现报错了如下：
 
