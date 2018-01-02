@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="linux,sed," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Sed本质上是一个编辑器，但是它是非交互式的，这点与VIM不同；同时它又是面向字符流的，输入的字符流经过Sed的处理后输出。这两个特性使得Sed成为命令行下面非常有用的一个处理工具。">
+<meta name="keywords" content="linux,sed">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux三剑客之sed">
+<meta property="og:url" content="http://yoursite.com/2017/12/21/sed/index.html">
+<meta property="og:site_name" content="有心人写字的地方">
+<meta property="og:description" content="Sed本质上是一个编辑器，但是它是非交互式的，这点与VIM不同；同时它又是面向字符流的，输入的字符流经过Sed的处理后输出。这两个特性使得Sed成为命令行下面非常有用的一个处理工具。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/65ca5a5cly1fmoo6jcun5j20hz0f0gm7.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/65ca5a5cly1fmpmyorywej20hp0almxr.jpg">
+<meta property="og:updated_time" content="2018-01-02T02:11:46.832Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux三剑客之sed">
+<meta name="twitter:description" content="Sed本质上是一个编辑器，但是它是非交互式的，这点与VIM不同；同时它又是面向字符流的，输入的字符流经过Sed的处理后输出。这两个特性使得Sed成为命令行下面非常有用的一个处理工具。">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/65ca5a5cly1fmoo6jcun5j20hz0f0gm7.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/21/sed/"/>
+
+
+
+
+
+  <title>Linux三剑客之sed | 有心人写字的地方</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?83925cef9f6bbe2c46bfce108cdc7206";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">有心人写字的地方</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/21/sed/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="有心人">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="有心人写字的地方">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux三剑客之sed</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-21T19:55:53+08:00">
+                2017-12-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Sed本质上是一个编辑器，但是它是非交互式的，这点与VIM不同；同时它又是面向字符流的，输入的字符流经过Sed的处理后输出。这两个特性使得Sed成为命令行下面非常有用的一个处理工具。<br><a id="more"></a></p>
+<h2 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h2><blockquote>
+<p>sed [options] script filename<br>sed -f scriptfile filename</p>
+</blockquote>
+<p>sed会以此读取文件中的行并且加入到缓存当中去并用script来处理该内容，并且不会影响到原有的文件（使用-i参数是会影响到原有文件）一般多指令的情况下会使用<code>;</code>分隔(也可以使用参数-e)</p>
+<h2 id="模式空间"><a href="#模式空间" class="headerlink" title="模式空间"></a>模式空间</h2><p>sed的处理流程如下图显示:<br><img src="https://ws1.sinaimg.cn/large/65ca5a5cly1fmoo6jcun5j20hz0f0gm7.jpg" alt=""></p>
+<ol>
+<li>读入新的一行内容到缓存空间；</li>
+<li>从指定的操作指令中取出第一条指令，判断是否匹配pattern；</li>
+<li>如果不匹配，则忽略后续的编辑命令，回到第2步继续取出下一条指令；</li>
+<li>如果匹配，则针对缓存的行执行后续的编辑命令；完成后，回到第2步继续取出下一条指令；</li>
+<li>当所有指令都应用之后，输出缓存行的内容；回到第1步继续读入下一行内容；</li>
+<li>当所有行都处理完之后，结束</li>
+</ol>
+<p>由次可以，sed不是将一个命令用于每一行，而是一个行的方式来单个处理，同时每一行被读取到缓存中，并且每次只会缓存一行，我们称之为<code>模式空间</code>（pattern space）每个应用到的命令都会相互影响，因为每个命令处理之后都会应用到模式空间,所以说命令之间的顺序就很重要了,这种由于只会缓存一行到模式空间中去所以，用sed处理大文件就不会有什么问题了。如下图是一个简单的模式空间转换的流程图</p>
+<p><img src="https://ws1.sinaimg.cn/large/65ca5a5cly1fmpmyorywej20hp0almxr.jpg" alt=""></p>
+<ol>
+<li>先读取一行 <code>The Unix System</code>到模式空间中</li>
+<li>应用第一条命令将 <code>Unix</code> 替换成 <code>UNIX</code>， 这个时候这一行内容变成 <code>The UNIX System</code> 并存到模式空间中区</li>
+<li>然后应用第二条命令将 <code>UNIX System</code> 替换成 <code>UNIX Operating System</code> 这时候这一行的内容变成 <code>The UNIX Operating System</code> 并存储到模式空间</li>
+<li>此时执行完所有的命令，输出模式空间中的行</li>
+</ol>
+<h2 id="地址匹配"><a href="#地址匹配" class="headerlink" title="地址匹配"></a>地址匹配</h2><p>地址匹配在sed操作中和非常重要，因为sed是某人处理每一行，对每一行处理所有的指令，这个时候就需要用地址匹配来限制sed处理的行,例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed &apos;/root/s/sa/saaaa/g&apos; /etc/passwd</span><br></pre></td></tr></table></figure>
+<p>这时候就只会匹配包含向/root/是一个正则的行才会将sa替换为saaaa 类似 cook sa book中的sa就不会被替换。<br>sed中的地址匹配，可以是0个，1个或者1个地址对（2个地址）。当然地址可以是<code>正则</code>（如\root\），<code>行号</code>，或者<code>行号符</code> (如最后一行$)。<br>例如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#通过地址对</span><br><span class="line">sed &apos;/lda/,/krbtgt/s/var/super star/g&apos; /etc/passwd</span><br><span class="line"></span><br><span class="line">#通过行号</span><br><span class="line">sed &apos;2s/sa/saaaaaaa/g&apos; temp</span><br><span class="line">sed &apos;1,2s/sa/saaaaaaa/g&apos; temp</span><br><span class="line"></span><br><span class="line">#通过特定符号</span><br><span class="line">sed &apos;$s/sa/saaaaaaa/g&apos; temp</span><br></pre></td></tr></table></figure>
+<ul>
+<li>没有地址匹配将应用到所有的行上</li>
+<li>如果指定了地址匹配，命令将只应用到匹配的行上</li>
+<li>如果指定了地址对（addr1,addr2）命令将应用到包括起始行之间的所有行,如果只匹配到了addr1，则开启命令开关了，直到匹配到addr2结束,如果没有匹配到addr2就会一直到最后行</li>
+<li>如果地址后面有一个感叹号（！），则将编辑命令应用到不匹配该地址的所有行；</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed &apos;/root/!s/sa/saaaaaaa/g&apos; temp</span><br></pre></td></tr></table></figure>
+<p>总结一下：</p>
+<ol>
+<li>对于addr1,addr2地址对的匹配，如果addr1匹配上回开启匹配开关，直到addr2匹配完成。如果没有匹配到addr2就会默认直到最后一行</li>
+<li>如果对于addr1是行号的话，如果新读入的行大于等于addr1行号，则匹配。如果小于addr1行号的话则不匹配，同理addr2是行号的话，新入得行小于addr2则匹配，大于addr2的话则不匹配。</li>
+</ol>
+<h2 id="基础命令"><a href="#基础命令" class="headerlink" title="基础命令"></a>基础命令</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>命令</th>
+<th>语法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>替换</td>
+<td>s</td>
+<td>[address]s/pattern/replacement/flags</td>
+<td>替换匹配的内容这里的 <code>/</code>分隔符是可以替换成其他的</td>
+</tr>
+<tr>
+<td>删除</td>
+<td>d</td>
+<td>[address]d</td>
+<td>删除匹配的行</td>
+</tr>
+<tr>
+<td>插入</td>
+<td>i</td>
+<td>[line-address]i\text</td>
+<td>在匹配行的前方插入文本</td>
+</tr>
+<tr>
+<td>追加</td>
+<td>a</td>
+<td>[line-address]a\text</td>
+<td>在匹配行的后方插入文本</td>
+</tr>
+<tr>
+<td>行替换</td>
+<td>c</td>
+<td>[address]c\text</td>
+<td>将匹配的行替换成文本text</td>
+</tr>
+<tr>
+<td>打印行</td>
+<td>p</td>
+<td>[address]p</td>
+<td>打印在模式空间中的行</td>
+</tr>
+<tr>
+<td>打印行号</td>
+<td>=</td>
+<td>[address]=</td>
+<td>打印当前行行号</td>
+</tr>
+<tr>
+<td>打印行</td>
+<td>l</td>
+<td>[address]l</td>
+<td>打印在模式空间中的行，同时显示控制字符</td>
+</tr>
+<tr>
+<td>转换字符</td>
+<td>y</td>
+<td>[address]y/SET1/SET2/</td>
+<td>将SET1中出现的字符替换成SET2中对应位置的字符</td>
+</tr>
+<tr>
+<td>读取下一行</td>
+<td>n</td>
+<td>[address]n</td>
+<td>将下一行的内容读取到模式空间</td>
+</tr>
+<tr>
+<td>读文件</td>
+<td>r</td>
+<td>[line-address]r file</td>
+<td>将指定的文件读取到匹配行之后</td>
+</tr>
+<tr>
+<td>写文件</td>
+<td>w</td>
+<td>[address]w file</td>
+<td>将匹配地址的所有行输出到指定的文件中</td>
+</tr>
+<tr>
+<td>退出</td>
+<td>q</td>
+<td>[line-address]q</td>
+<td>读取到匹配的行之后即退出</td>
+</tr>
+</tbody>
+</table>
+<h3 id="替换命令：s"><a href="#替换命令：s" class="headerlink" title="替换命令：s"></a>替换命令：s</h3><blockquote>
+<p>[address]s/pattern/replacement/flags</p>
+</blockquote>
+<p>address是指的地址，s是替换命令，pattern表示匹配表达式，replacement表示需要替换成的内容，flags表示替换的标志位，标志位一般有没有一种或多种如：</p>
+<ol>
+<li>n: 一个数字（取值范围1-512），表明仅替换前n个被pattern匹配的内容</li>
+<li>g: 表示全局替换，替换所有被pattern匹配的内容；</li>
+<li>p: 仅当行被pattern匹配时，打印模式空间的内容</li>
+<li>w file：仅当行被pattern匹配时，将模式空间的内容输出到文件file中；</li>
+</ol>
+<p>当flag没有的时候默认匹配第一个后面的不会替换<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;1,1,1,1,&quot;|sed &apos;s/,/*/&apos;</span><br><span class="line">1*1,1,1,</span><br></pre></td></tr></table></figure></p>
+<p>当flag为n数字的时候表示第几次匹配的时候替换其他匹配不替换<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;1,1,1,1,&quot;|sed &apos;s/,/*/2&apos;</span><br><span class="line">1,1*1,1,</span><br></pre></td></tr></table></figure></p>
+<p>当flag为g标志位时表示全局替换<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;1,1,1,1,&quot;|sed &apos;s/,/*/g&apos;</span><br><span class="line">1*1*1*1*</span><br></pre></td></tr></table></figure></p>
+<h3 id="删除命令：-address-d"><a href="#删除命令：-address-d" class="headerlink" title="删除命令：[address]d"></a>删除命令：[address]d</h3><p>删除命令用于删除一条或多条视频例如<code>1,3d</code>就会删除1-3行的内容。删除命令的原理是删除模式空间中的内容，所以一旦前面的命令是删除命令的时候，后面的命令将不会执行了，因为模式空间中的内容已经被清空了。这时候就会读取新的行到模式空间中来。</p>
+<p>删除1-5行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed &apos;1,5d&apos; temp</span><br></pre></td></tr></table></figure></p>
+<p>删除匹配root的行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed &apos;/root/d&apos; temp</span><br></pre></td></tr></table></figure></p>
+<p>删除地址对之间的行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed &apos;/root/,/mysql/d&apos; temp</span><br></pre></td></tr></table></figure></p>
+<h3 id="插入-追加-替换行命令：i-a-c"><a href="#插入-追加-替换行命令：i-a-c" class="headerlink" title="插入/追加/替换行命令：i/a/c"></a>插入/追加/替换行命令：i/a/c</h3><blockquote>
+<p>[line-address]i\text<br>[line-address]a\text<br>[address]c\text</p>
+</blockquote>
+<p>这三个当中插入和追加只能使用当个地址，替换可以使用多个地址<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sed &apos;2a\</span><br><span class="line">--------------------------------------</span><br><span class="line">&apos; temp</span><br><span class="line">this is root page sa</span><br><span class="line">i am not sa</span><br><span class="line">--------------------------------------</span><br><span class="line">haha</span><br><span class="line">sdfasdf</span><br><span class="line">sadfsadfdsfqwerqwer</span><br><span class="line">wwqrewrq</span><br></pre></td></tr></table></figure></p>
+<h3 id="打印命令：p-l"><a href="#打印命令：p-l" class="headerlink" title="打印命令：p/l/="></a>打印命令：p/l/=</h3><blockquote>
+<p>[address]p<br>[address]l<br>[address]=</p>
+</blockquote>
+<p>下面的-n是指只显示匹配的行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">sed -n &apos;2p&apos; temp</span><br><span class="line">i am not sa</span><br><span class="line"></span><br><span class="line">sed &apos;=&apos; temp</span><br><span class="line">1</span><br><span class="line">this is root page sa</span><br><span class="line">2</span><br><span class="line">i am not sa</span><br><span class="line">3</span><br><span class="line">haha</span><br><span class="line">4</span><br><span class="line">sdfasdf</span><br><span class="line">5</span><br><span class="line">sadfsadfdsfqwerqwer</span><br><span class="line">6</span><br><span class="line">wwqrewrq</span><br></pre></td></tr></table></figure></p>
+<h3 id="特殊字符"><a href="#特殊字符" class="headerlink" title="特殊字符"></a>特殊字符</h3><ol>
+<li>&amp; 字符这个字符是存储匹配模式里的内容</li>
+</ol>
+<p>在匹配的内容后面加ok<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed &apos;s/root/&amp; ok/g&apos; /etc/passwd</span><br></pre></td></tr></table></figure></p>
+<ol>
+<li>^ $ 开头结尾</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#将3到最后一行删除然后将std替换成wangchao</span><br><span class="line">sed -e &apos;3,$d&apos; passwd  -e &apos;s/std/wangchao/g&apos;</span><br><span class="line"></span><br><span class="line">查找到wangchao在该行的开头加一个hello ^这个表示开头 同理$表示结尾</span><br><span class="line">sed &apos;/wangchao/s/^/ hello/&apos; /etc/passwd</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/linux/" rel="tag"># linux</a>
+          
+            <a href="/tags/sed/" rel="tag"># sed</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/grep/" rel="next" title="Linux三剑客之grep">
+                <i class="fa fa-chevron-left"></i> Linux三剑客之grep
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/25/talkbar/" rel="prev" title="南怀瑾遇高僧对话有感">
+                南怀瑾遇高僧对话有感 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">有心人</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#命令格式"><span class="nav-number">1.</span> <span class="nav-text">命令格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模式空间"><span class="nav-number">2.</span> <span class="nav-text">模式空间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#地址匹配"><span class="nav-number">3.</span> <span class="nav-text">地址匹配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础命令"><span class="nav-number">4.</span> <span class="nav-text">基础命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#替换命令：s"><span class="nav-number">4.1.</span> <span class="nav-text">替换命令：s</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#删除命令：-address-d"><span class="nav-number">4.2.</span> <span class="nav-text">删除命令：[address]d</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入-追加-替换行命令：i-a-c"><span class="nav-number">4.3.</span> <span class="nav-text">插入/追加/替换行命令：i/a/c</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#打印命令：p-l"><span class="nav-number">4.4.</span> <span class="nav-text">打印命令：p/l/=</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特殊字符"><span class="nav-number">4.5.</span> <span class="nav-text">特殊字符</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">有心人</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
