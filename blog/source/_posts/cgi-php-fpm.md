@@ -5,6 +5,7 @@ tags: [php,php-fpm,cgi]
 categories: PHP
 ---
 很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。
+<!--more-->
 
 ## cgi
 
