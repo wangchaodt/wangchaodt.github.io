@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。 cgi说到php-fastcgi就要了解什么是cgi？网上普遍说法是 通用网关接口 就是一个通信协议，方便外部程序与web server质检交互的数据格式，他的一个执行流程是当web server 接收到一个请求之后，会启">
+<meta name="description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。">
 <meta name="keywords" content="php,php-fpm,cgi">
 <meta property="og:type" content="article">
 <meta property="og:title" content="php-fmp到底是什么？">
 <meta property="og:url" content="http://www.youxinren.wang/2018/05/19/cgi-php-fpm/index.html">
 <meta property="og:site_name" content="有心人写字的地方">
-<meta property="og:description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。 cgi说到php-fastcgi就要了解什么是cgi？网上普遍说法是 通用网关接口 就是一个通信协议，方便外部程序与web server质检交互的数据格式，他的一个执行流程是当web server 接收到一个请求之后，会启">
+<meta property="og:description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-19T10:08:51.528Z">
+<meta property="og:updated_time" content="2018-06-21T12:08:14.022Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="php-fmp到底是什么？">
-<meta name="twitter:description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。 cgi说到php-fastcgi就要了解什么是cgi？网上普遍说法是 通用网关接口 就是一个通信协议，方便外部程序与web server质检交互的数据格式，他的一个执行流程是当web server 接收到一个请求之后，会启">
+<meta name="twitter:description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。">
 
 
 
@@ -362,7 +362,7 @@
       
 
       
-        <p>很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。</p>
+        <p>很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。<br><a id="more"></a></p>
 <h2 id="cgi"><a href="#cgi" class="headerlink" title="cgi"></a>cgi</h2><p>说到php-fastcgi就要了解什么是cgi？<br>网上普遍说法是 <code>通用网关接口</code> 就是一个通信协议，方便外部程序与web server质检交互的数据格式，他的一个执行流程是当web server 接收到一个请求之后，会启动相应的cgi进程(php就会启动php相应的cgi进程就是Fastcgi后面会讲到)，然后cgi会进行一系列的操作，然后将处理结果通过协议规定的格式返回，然后cgi进程会退出，最后web server会将结果返回给请求方，周而复始 请求-&gt;生成cgi-&gt;执行-&gt;退出。</p>
 <h2 id="FastCgi"><a href="#FastCgi" class="headerlink" title="FastCgi"></a>FastCgi</h2><p>了解完cgi我们就知道cgi，在性能上可能不是很完美，他没接收一个请求都会生成一个cgi同时也是初始化相应的环境，这个就会比较耗时，这时候FastCgi的出现就是解决这个问题，他是其实就是cgi的优化版。FastCgi首先会启动一个master进程，解析配置文件和初始化环境，同时会启动很多个worker进程，每当有请求过来时，master会请求传递给一个worker，这样就不需要重复的初始化，加载等一系列的操作，当然系统繁忙是会多启动几个worker，当系统空闲是也会kill掉一部分的worker，当然这样也会长期占用一定的内存(但作为内存不值钱的今天，这点消耗微不足道)</p>
 <h2 id="php-cgi"><a href="#php-cgi" class="headerlink" title="php-cgi"></a>php-cgi</h2><p>从上面了解我们就可以知道了php-cgi其实就是一个cgi程序，php-cgi是php官方自带的一个FastCGI管理器，实现了FastCGI的协议（5.4以前，5.4后就是php-fpm），当php.ini修改后原有的php-cig不会生效（因为这些是提前fork的），只有当前的php-cgi销毁掉之后，新的才会生效，这样就不能平滑的过渡了。</p>
