@@ -40,6 +40,7 @@ grep -r "root" /etc/
 #查找包含root行的前5行 -C -A同理
 grep -B 5 "root" /etc/passwd
 
-
+#查找包含root开头的行
+grep "^root" /et/passwd
 ```
 
