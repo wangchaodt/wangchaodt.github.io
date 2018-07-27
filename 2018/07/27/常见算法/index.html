@@ -88,7 +88,8 @@
 <meta property="og:description" content="我们常见的排序算法是是内部排序算法即靠记录在内存中进行排序，这里主要记录下比较排序的原理及php实现。我们先看下常见的比较排序的性能">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1ftog943olij20se0auacj">
-<meta property="og:updated_time" content="2018-07-27T07:38:40.904Z">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1ftoh5cd8vlg207s06lgo0">
+<meta property="og:updated_time" content="2018-07-27T08:23:21.875Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="常见排序算法">
 <meta name="twitter:description" content="我们常见的排序算法是是内部排序算法即靠记录在内存中进行排序，这里主要记录下比较排序的原理及php实现。我们先看下常见的比较排序的性能">
@@ -365,7 +366,8 @@
 
       
         <p>我们常见的排序算法是是内部排序算法即靠记录在内存中进行排序，这里主要记录下比较排序的原理及php实现。<br>我们先看下常见的比较排序的性能<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1ftog943olij20se0auacj" alt=""><br><a id="more"></a></p>
-
+<p>##冒泡排序<br>冒泡排序就是比较相邻两个数大小来进行排序的。对于一个长度为n的数组arr，我们需要进行第一趟的排序的范围[0,n-1]，也就是说从arr[0]开始第一趟的比较从arr[0]和arr[1],arr[1]和arr[2]…arr[n-2]和arr[n-1]。进行完第一一趟的比较后最大的数已经沉入最后了也就是arr[n-1]中了。随后进行第二轮的比较此时的比较范围为[0,n-1],重复第一轮的操作。最多全部的数据跑完需要n轮，这就需要第一层循环控制循环次数，第二轮循环控制排序的范围<br>如下图所示每轮排序最大的数往后移(即如图所示的右上部)<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1ftoh5cd8vlg207s06lgo0" alt=""></p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">function bubbleSort()&#123;</span><br><span class="line">   $arr = [8,1,7,23,46,2,5];</span><br><span class="line">   $length = count($arr);</span><br><span class="line">   for ($i=0; $i &lt; $length; $i++) &#123; </span><br><span class="line">       for ($j=0; $j &lt; $length-$i-1; $j++) &#123;</span><br><span class="line">            if ($arr[$j] &gt;$arr[$j+1]) &#123;</span><br><span class="line">                $temp = $arr[$j+1];</span><br><span class="line">                $arr[$j+1] = $arr[$j];</span><br><span class="line">                $arr[$j] = $temp;</span><br><span class="line">            &#125; </span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   return $arr;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     
