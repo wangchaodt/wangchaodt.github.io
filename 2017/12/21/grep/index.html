@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="有心人写字的地方">
 <meta property="og:description" content="Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-07-27T06:28:55.381Z">
+<meta property="og:updated_time" content="2018-07-27T07:02:46.274Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux三剑客之grep">
 <meta name="twitter:description" content="Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户">
@@ -378,7 +378,7 @@
 <li>-i 忽略大小写</li>
 <li>-r 递归查询 目录及子目录的文件</li>
 </ol>
-<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#查找不含root的行</span><br><span class="line">grep -v &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#在文件中查找匹配行并显示行号</span><br><span class="line">grep -n &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#在多文件中查找显示匹配的文件</span><br><span class="line">grep -l &quot;root&quot; /etc/passwd /etc/group</span><br><span class="line"></span><br><span class="line">#递归查询所有含root的行</span><br><span class="line">grep -r &quot;root&quot; /etc/</span><br><span class="line"></span><br><span class="line">#查找包含root行的前5行 -C -A同理</span><br><span class="line">grep -B 5 &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#查找包含root开头的行</span><br><span class="line">grep &quot;^root&quot; /et/passwd</span><br></pre></td></tr></table></figure>
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#查找不含root的行</span><br><span class="line">grep -v &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#在文件中查找匹配行并显示行号</span><br><span class="line">grep -n &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#在多文件中查找显示匹配的文件</span><br><span class="line">grep -l &quot;root&quot; /etc/passwd /etc/group</span><br><span class="line"></span><br><span class="line">#递归查询所有含root的行</span><br><span class="line">grep -r &quot;root&quot; /etc/</span><br><span class="line"></span><br><span class="line">#查找包含root行的前5行 -C -A同理</span><br><span class="line">grep -B 5 &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#查找包含root开头的行</span><br><span class="line">grep &quot;^root&quot; /etc/passwd</span><br></pre></td></tr></table></figure>
 
       
     </div>
@@ -411,8 +411,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/20/awk/" rel="next" title="Linux三剑客之awk">
-                <i class="fa fa-chevron-left"></i> Linux三剑客之awk
+              <a href="/2017/12/21/常见算法/" rel="next" title="常见排序算法">
+                <i class="fa fa-chevron-left"></i> 常见排序算法
               </a>
             
           </div>
@@ -511,7 +511,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -522,7 +522,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
