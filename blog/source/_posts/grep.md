@@ -41,6 +41,6 @@ grep -r "root" /etc/
 grep -B 5 "root" /etc/passwd
 
 #查找包含root开头的行
-grep "^root" /et/passwd
+grep "^root" /etc/passwd
 ```
 
