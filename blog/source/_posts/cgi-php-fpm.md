@@ -44,12 +44,35 @@ categories: PHP
 * <b>STDIN</b>：「流数据包」，用于 Web 应用从标准输入中读取出用户提交的 POST 数据
 * <b>STDOUT</b>：「流数据报」，从 Web 应用写入到标准输出中，包含返回给用户的数据
 
+#### Web服务器与FastCgi交互流程
+
+* Web 服务器接收用户请求，但最终处理请求由 Web 应用完成。此时，Web 服务器尝试通过套接字（UNIX 或 TCP 套接字，具体使用哪个由 Web 服务器配置决定）连接到 FastCGI 进程
+* FastCGI 进程查看接收到的连接。选择「接收」或「拒绝」连接。如果是「接收」连接，则从标准输入流中读取数据包
+* 如果 FastCGI 进程在指定时间内没有成功接收到连接，则该请求失败。否则，Web 服务器发送一个包含唯一的 RequestID 的 BEGIN_REQUEST 类型消息给到 FastCGI 进程。后续所有数据包发送都包含这个 RequestID。 然后，Web 服务器发送任意数量的 PARAMS 类型消息到 FastCGI 进程。一旦发送完毕，Web 服务器通过发送一个空 PARAMS 消息包，然后关闭这个流。 另外，如果用户发送了 POST 数据 Web 服务器会将其写入到 标准输入（STDIN） 发送给 FastCGI 进程。当所有 POST 数据发送完成，会发送一个空的 标准输入（STDIN） 来关闭这个流
+* 同时，FastCGI 进程接收到 BEGIN_REQUEST 类型数据包。它可以通过响应 END_REQUEST 来拒绝这个请求。或者接收并处理这个请求。如果接收请求，FastCGI 进程会等待接收所有的 PARAMS 和 标准输入数据包。 然后，在处理请求并将返回结果写入 标准输出（STDOUT） 流。处理完成后，发送一个空的数据包到标准输出来关闭这个流，并且会发送一个 END_REQUEST 类型消息通知 Web 服务器，告知它是否发生错误异常
+
+<b>注意</b> 我们的 Web 服务器和 FastCGI 进程之间的连接可能处理多个请求，即一个连接可以处理多个请求.所以才需要采用数据包协议而不是直接使用单个数据流的原因：以实现「多路复用」
+
+因此，由于每个数据包都包含唯一的 RequestID，所以 Web 服务器才能在一个连接上发送任意数量的请求，并且 FastCGI 进程也能够从一个连接上接收到任意数量的请求数据包。
+
+另外我们还需要明确一点就是 Web 服务器 与 FastCGI 进程间通信是 无序的。即使我们在交互过程中看起来一个请求是有序的，但是我们的 Web 服务器也有可能在同一时间发出几十个 BEGIN_REQUEST 类型的数据包，以此类推
 
 ## php-cgi
 从上面了解我们就可以知道了php-cgi其实就是一个cgi程序，php-cgi是php官方自带的一个FastCGI管理器，实现了FastCGI的协议（5.4以前，5.4后就是php-fpm），当php.ini修改后原有的php-cig不会生效（因为这些是提前fork的），只有当前的php-cgi销毁掉之后，新的才会生效，这样就不能平滑的过渡了。
 
 ## php-fpm
 终于轮到我们的主角了，`php-fpm` 有人说php-fpm是php-cig的管理器，这是对的，但是好像也不全对，php-fpm其实还是一个fastcgi协议的实现，他可以看做一个实现了fastcgi协议的cig管理器。他可以动态的进行进程调度，这样的一个交互方式让php-cgi独立于httpd而存在。如果要让php-fpm以这种方式运行就需要`--enable-fpm`选项
+
+## 最后NGINX如何与FastCgi协同工作
+ginx 服务器无法直接与 FastCGI 服务器进行通信，需要启用 ngx_http_fastcgi_module 模块进行代理配置，才能将请求发送给 FastCGI 服务
+其中，包括我们熟知的配置指令：
+
+* fastcgi_pass 用于设置 FastCGI 服务器的 IP 地址（TCT 套接字）或 UNIX 套接字。
+* fastcgi_param 设置传入 FastCGI 服务器的参数
+
+
+
+
 
 ## 结语
 上面就是一个大概的php-fpm的原理的他的执行的一个流程，这一切是是互联网技术发展带来的结果。上面如有错误，欢迎大家指正。
