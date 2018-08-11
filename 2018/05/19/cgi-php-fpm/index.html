@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="有心人写字的地方">
 <meta property="og:description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-11T08:48:19.491Z">
+<meta property="og:updated_time" content="2018-08-11T09:00:16.731Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="php-fmp到底是什么？">
 <meta name="twitter:description" content="很多时候是php-fpm一直在用，但却不知道是干什么用的，所有今天会梳理一下，做一个整体的理解。整体一句话就是php-fpm是php-fastcgi的管理器，为php提供服务。">
@@ -392,8 +392,22 @@
 <li><b>STDIN</b>：「流数据包」，用于 Web 应用从标准输入中读取出用户提交的 POST 数据</li>
 <li><b>STDOUT</b>：「流数据报」，从 Web 应用写入到标准输出中，包含返回给用户的数据</li>
 </ul>
+<h4 id="Web服务器与FastCgi交互流程"><a href="#Web服务器与FastCgi交互流程" class="headerlink" title="Web服务器与FastCgi交互流程"></a>Web服务器与FastCgi交互流程</h4><ul>
+<li>Web 服务器接收用户请求，但最终处理请求由 Web 应用完成。此时，Web 服务器尝试通过套接字（UNIX 或 TCP 套接字，具体使用哪个由 Web 服务器配置决定）连接到 FastCGI 进程</li>
+<li>FastCGI 进程查看接收到的连接。选择「接收」或「拒绝」连接。如果是「接收」连接，则从标准输入流中读取数据包</li>
+<li>如果 FastCGI 进程在指定时间内没有成功接收到连接，则该请求失败。否则，Web 服务器发送一个包含唯一的 RequestID 的 BEGIN_REQUEST 类型消息给到 FastCGI 进程。后续所有数据包发送都包含这个 RequestID。 然后，Web 服务器发送任意数量的 PARAMS 类型消息到 FastCGI 进程。一旦发送完毕，Web 服务器通过发送一个空 PARAMS 消息包，然后关闭这个流。 另外，如果用户发送了 POST 数据 Web 服务器会将其写入到 标准输入（STDIN） 发送给 FastCGI 进程。当所有 POST 数据发送完成，会发送一个空的 标准输入（STDIN） 来关闭这个流</li>
+<li>同时，FastCGI 进程接收到 BEGIN_REQUEST 类型数据包。它可以通过响应 END_REQUEST 来拒绝这个请求。或者接收并处理这个请求。如果接收请求，FastCGI 进程会等待接收所有的 PARAMS 和 标准输入数据包。 然后，在处理请求并将返回结果写入 标准输出（STDOUT） 流。处理完成后，发送一个空的数据包到标准输出来关闭这个流，并且会发送一个 END_REQUEST 类型消息通知 Web 服务器，告知它是否发生错误异常</li>
+</ul>
+<p><b>注意</b> 我们的 Web 服务器和 FastCGI 进程之间的连接可能处理多个请求，即一个连接可以处理多个请求.所以才需要采用数据包协议而不是直接使用单个数据流的原因：以实现「多路复用」</p>
+<p>因此，由于每个数据包都包含唯一的 RequestID，所以 Web 服务器才能在一个连接上发送任意数量的请求，并且 FastCGI 进程也能够从一个连接上接收到任意数量的请求数据包。</p>
+<p>另外我们还需要明确一点就是 Web 服务器 与 FastCGI 进程间通信是 无序的。即使我们在交互过程中看起来一个请求是有序的，但是我们的 Web 服务器也有可能在同一时间发出几十个 BEGIN_REQUEST 类型的数据包，以此类推</p>
 <h2 id="php-cgi"><a href="#php-cgi" class="headerlink" title="php-cgi"></a>php-cgi</h2><p>从上面了解我们就可以知道了php-cgi其实就是一个cgi程序，php-cgi是php官方自带的一个FastCGI管理器，实现了FastCGI的协议（5.4以前，5.4后就是php-fpm），当php.ini修改后原有的php-cig不会生效（因为这些是提前fork的），只有当前的php-cgi销毁掉之后，新的才会生效，这样就不能平滑的过渡了。</p>
 <h2 id="php-fpm"><a href="#php-fpm" class="headerlink" title="php-fpm"></a>php-fpm</h2><p>终于轮到我们的主角了，<code>php-fpm</code> 有人说php-fpm是php-cig的管理器，这是对的，但是好像也不全对，php-fpm其实还是一个fastcgi协议的实现，他可以看做一个实现了fastcgi协议的cig管理器。他可以动态的进行进程调度，这样的一个交互方式让php-cgi独立于httpd而存在。如果要让php-fpm以这种方式运行就需要<code>--enable-fpm</code>选项</p>
+<h2 id="最后NGINX如何与FastCgi协同工作"><a href="#最后NGINX如何与FastCgi协同工作" class="headerlink" title="最后NGINX如何与FastCgi协同工作"></a>最后NGINX如何与FastCgi协同工作</h2><p>ginx 服务器无法直接与 FastCGI 服务器进行通信，需要启用 ngx_http_fastcgi_module 模块进行代理配置，才能将请求发送给 FastCGI 服务<br>其中，包括我们熟知的配置指令：</p>
+<ul>
+<li>fastcgi_pass 用于设置 FastCGI 服务器的 IP 地址（TCT 套接字）或 UNIX 套接字。</li>
+<li>fastcgi_param 设置传入 FastCGI 服务器的参数</li>
+</ul>
 <h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>上面就是一个大概的php-fpm的原理的他的执行的一个流程，这一切是是互联网技术发展带来的结果。上面如有错误，欢迎大家指正。</p>
 
       
@@ -573,7 +587,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#cgi"><span class="nav-number">1.</span> <span class="nav-text">cgi</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FastCgi"><span class="nav-number">2.</span> <span class="nav-text">FastCgi</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FastCgi协议组成"><span class="nav-number">2.1.</span> <span class="nav-text">FastCgi协议组成</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主要的消息头信息如下："><span class="nav-number">2.1.1.</span> <span class="nav-text">主要的消息头信息如下：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息类型定义"><span class="nav-number">2.1.2.</span> <span class="nav-text">消息类型定义</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#php-cgi"><span class="nav-number">3.</span> <span class="nav-text">php-cgi</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#php-fpm"><span class="nav-number">4.</span> <span class="nav-text">php-fpm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">5.</span> <span class="nav-text">结语</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#cgi"><span class="nav-number">1.</span> <span class="nav-text">cgi</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FastCgi"><span class="nav-number">2.</span> <span class="nav-text">FastCgi</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FastCgi协议组成"><span class="nav-number">2.1.</span> <span class="nav-text">FastCgi协议组成</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主要的消息头信息如下："><span class="nav-number">2.1.1.</span> <span class="nav-text">主要的消息头信息如下：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息类型定义"><span class="nav-number">2.1.2.</span> <span class="nav-text">消息类型定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Web服务器与FastCgi交互流程"><span class="nav-number">2.1.3.</span> <span class="nav-text">Web服务器与FastCgi交互流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#php-cgi"><span class="nav-number">3.</span> <span class="nav-text">php-cgi</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#php-fpm"><span class="nav-number">4.</span> <span class="nav-text">php-fpm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后NGINX如何与FastCgi协同工作"><span class="nav-number">5.</span> <span class="nav-text">最后NGINX如何与FastCgi协同工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
             
 
           </div>
