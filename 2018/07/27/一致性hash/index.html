@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="linux,grep," />
+  <meta name="keywords" content="算法,hash,缓存," />
 
 
 
@@ -79,18 +79,28 @@
 
 
 
-<meta name="description" content="Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户">
-<meta name="keywords" content="linux,grep">
+<meta name="description" content="说道一致性Hash之前，我们要了解到redis或者mc缓存高可用，提高其读写性能，我们一般会进行主从复制，组成Master-Master或者Master-Slave的形式，或者搭建Redis集群，进行数据的读写分离，类似于数据库的主从复制和读写分离,一般的做法是hash取模分配到不同的机器上去,但是如果我们其中的一个集群服务器数量有变化的时候，这里的所有的缓存就会失效，会直接落到DB上去。所以就需">
+<meta name="keywords" content="算法,hash,缓存">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Linux三剑客之grep">
-<meta property="og:url" content="http://www.youxinren.wang/2017/12/21/grep/index.html">
+<meta property="og:title" content="一致性Hash(转)">
+<meta property="og:url" content="http://www.youxinren.wang/2018/07/27/一致性hash/index.html">
 <meta property="og:site_name" content="有心人写字的地方">
-<meta property="og:description" content="Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户">
+<meta property="og:description" content="说道一致性Hash之前，我们要了解到redis或者mc缓存高可用，提高其读写性能，我们一般会进行主从复制，组成Master-Master或者Master-Slave的形式，或者搭建Redis集群，进行数据的读写分离，类似于数据库的主从复制和读写分离,一般的做法是hash取模分配到不同的机器上去,但是如果我们其中的一个集群服务器数量有变化的时候，这里的所有的缓存就会失效，会直接落到DB上去。所以就需">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-07-27T07:02:46.274Z">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9eq3f9uwj20gq0aqmxd">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9f2caj4bj20ck0e1aar">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9f8uo940j20ch0d0t8m">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fa05gaqj20ju0k70t2">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fbh99inj20jk0jzdgg">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fdb09h2j20jh0k4wf4">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fdus72gj20jc0k23z8">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fgiabt3j20cc0d5dfy">
+<meta property="og:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fh4ky65j20k00kbaaj">
+<meta property="og:updated_time" content="2018-08-14T10:56:45.828Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux三剑客之grep">
-<meta name="twitter:description" content="Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户">
+<meta name="twitter:title" content="一致性Hash(转)">
+<meta name="twitter:description" content="说道一致性Hash之前，我们要了解到redis或者mc缓存高可用，提高其读写性能，我们一般会进行主从复制，组成Master-Master或者Master-Slave的形式，或者搭建Redis集群，进行数据的读写分离，类似于数据库的主从复制和读写分离,一般的做法是hash取模分配到不同的机器上去,但是如果我们其中的一个集群服务器数量有变化的时候，这里的所有的缓存就会失效，会直接落到DB上去。所以就需">
+<meta name="twitter:image" content="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9eq3f9uwj20gq0aqmxd">
 
 
 
@@ -120,13 +130,13 @@
 
 
 
-  <link rel="canonical" href="http://www.youxinren.wang/2017/12/21/grep/"/>
+  <link rel="canonical" href="http://www.youxinren.wang/2018/07/27/一致性hash/"/>
 
 
 
 
 
-  <title>Linux三剑客之grep | 有心人写字的地方</title>
+  <title>一致性Hash(转) | 有心人写字的地方</title>
   
 
 
@@ -273,7 +283,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://www.youxinren.wang/2017/12/21/grep/">
+    <link itemprop="mainEntityOfPage" href="http://www.youxinren.wang/2018/07/27/一致性hash/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="有心人">
@@ -290,7 +300,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Linux三剑客之grep</h1>
+          <h1 class="post-title" itemprop="name headline">一致性Hash(转)</h1>
         
 
         <div class="post-meta">
@@ -302,8 +312,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-21T14:55:01+08:00">
-                2017-12-21
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-27T14:55:01+08:00">
+                2018-07-27
               </time>
             
 
@@ -325,8 +335,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index">
-                    <span itemprop="name">Linux</span>
+                  <a href="/categories/其他/" itemprop="url" rel="index">
+                    <span itemprop="name">其他</span>
                   </a>
                 </span>
 
@@ -362,23 +372,14 @@
       
 
       
-        <p>Linux系统中grep命令是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹 配的行打印出来。grep全称是Global Regular Expression Print，表示全局正则表达式版本，它的使用权限是所有用户<br><a id="more"></a></p>
-<h2 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h2><blockquote>
-<p>grep [option] pattern file</p>
-</blockquote>
-<h2 id="主要参数"><a href="#主要参数" class="headerlink" title="主要参数"></a>主要参数</h2><ol>
-<li>-v 反向匹配，即显示不配的行</li>
-<li>-B &lt;行数&gt; 匹配处理的行以外 再显示之前的n行</li>
-<li>-A &lt;行数&gt; 同上 之后的N行</li>
-<li>-C &lt;行数&gt; 同上 显示匹配行前后N行</li>
-<li>-n 显示行号</li>
-<li>-c 只显示匹配的行数即匹配了多少行</li>
-<li>-o 只显示匹配的部分</li>
-<li>-l 查询多文件时只输出包含匹配字符的文件名</li>
-<li>-i 忽略大小写</li>
-<li>-r 递归查询 目录及子目录的文件</li>
-</ol>
-<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#查找不含root的行</span><br><span class="line">grep -v &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#在文件中查找匹配行并显示行号</span><br><span class="line">grep -n &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#在多文件中查找显示匹配的文件</span><br><span class="line">grep -l &quot;root&quot; /etc/passwd /etc/group</span><br><span class="line"></span><br><span class="line">#递归查询所有含root的行</span><br><span class="line">grep -r &quot;root&quot; /etc/</span><br><span class="line"></span><br><span class="line">#查找包含root行的前5行 -C -A同理</span><br><span class="line">grep -B 5 &quot;root&quot; /etc/passwd</span><br><span class="line"></span><br><span class="line">#查找包含root开头的行</span><br><span class="line">grep &quot;^root&quot; /etc/passwd</span><br></pre></td></tr></table></figure>
+        <p>说道一致性Hash之前，我们要了解到redis或者mc缓存高可用，提高其读写性能，我们一般会进行主从复制，组成Master-Master或者Master-Slave的形式，或者搭建Redis集群，进行数据的读写分离，类似于数据库的主从复制和读写分离,一般的做法是hash取模分配到不同的机器上去,但是如果我们其中的一个集群服务器数量有变化的时候，这里的所有的缓存就会失效，会直接落到DB上去。所以就需要用一种新的算法来最大可能性减少机器增减的影响。<br><a id="more"></a></p>
+<h2 id="redis集群及Hahs的使用"><a href="#redis集群及Hahs的使用" class="headerlink" title="redis集群及Hahs的使用"></a>redis集群及Hahs的使用</h2><p>我们现在的业务包括mysql或者redis都需要进行读写分离操作，同时每个读写都需要进行主从复制如下图所示<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9eq3f9uwj20gq0aqmxd" alt=""><br>这是一个典型的集群，一个Master后挂载着多个Slave，这里的每个Slave的数据和Master是一致的，，但是如果这个集群的量开始大量增长的时候，大量的读操作会对集群造成很大的压力，这个时候我们就需要和mysql一样进行分库分表操作，在redis单中我们可以根据特定的字段进行hash取模来确定会落到那个集群但中去，比如我们有4个集群，这时候的我们需要更具uid分散均匀的缓存到各个集群中去<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9f2caj4bj20ck0e1aar" alt=""><br>这样就可以直接根据hash后的值取模后的值落到相应的集群中去，这样速度很快，不需要选择遍历，但是这样也会有个很明显的缺点就是如果，我们4台服务器不能满足需求了，或者一台宕机了，这样的话所有的缓存就会出现问题，取模的值将会根据你服务器数量来决定，这样的话可能造成缓存时效，DB可能会承受流量洪峰。这时候Hash一致性算法便出现了。</p>
+<h2 id="什么是Hash一致性算法"><a href="#什么是Hash一致性算法" class="headerlink" title="什么是Hash一致性算法"></a>什么是Hash一致性算法</h2><p>一致性Hash算法也是使用取模的方法，只是，刚才描述的取模法是对服务器的数量进行取模，而一致性Hash算法是对2^32取模，什么意思呢？简单来说，一致性Hash算法将整个哈希值空间组织成一个虚拟的圆环，如假设某哈希函数H的值空间为0-2^32-1（即哈希值是一个32位无符号整形），整个哈希环如下<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9f8uo940j20ch0d0t8m" alt=""><br>整个空间按顺时针方向组织，圆环的正上方的点代表0，0点右侧的第一个点代表1，以此类推，2、3、4、5、6……直到2^32-1，也就是说0点左侧的第一个点代表2^32-1， 0和2^32-1在零点中方向重合，我们把这个由2^32个点组成的圆环称为Hash环<br>下一步将各个服务器使用Hash进行一个哈希，具体可以选择服务器的IP或主机名作为关键字进行哈希，这样每台机器就能确定其在哈希环上的位置，这里假设将上文中四台服务器使用IP地址哈希后在环空间的位置如下：<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fa05gaqj20ju0k70t2" alt=""><br>例如我们有Object A、Object B、Object C、Object D四个数据对象，经过哈希计算后，在环空间上的位置如下：<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fbh99inj20jk0jzdgg" alt=""><br>根据一致性Hash算法，数据A会被定为到Node A上，B被定为到Node B上，C被定为到Node C上，D被定为到Node D上。</p>
+<h2 id="Hash一致性算法的容错特性"><a href="#Hash一致性算法的容错特性" class="headerlink" title="Hash一致性算法的容错特性"></a>Hash一致性算法的容错特性</h2><p>现假设Node C不幸宕机，可以看到此时对象A、B、D不会受到影响，只有C对象被重定位到Node D。一般的，在一致性Hash算法中，如果一台服务器不可用，则受影响的数据仅仅是此服务器到其环空间中前一台服务器（即沿着逆时针方向行走遇到的第一台服务器）之间数据，其它不会受到影响，如下所示：<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fdb09h2j20jh0k4wf4" alt=""><br>下面考虑另外一种情况，如果在系统中增加一台服务器Node X，如下图所示：<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fdus72gj20jc0k23z8" alt=""><br>此时对象Object A、B、D不受影响，只有对象C需要重定位到新的Node X ！一般的，在一致性Hash算法中，如果增加一台服务器，则受影响的数据仅仅是新服务器到其环空间中前一台服务器（即沿着逆时针方向行走遇到的第一台服务器）之间数据，其它数据也不会受到影响。</p>
+<p>综上所述，一致性Hash算法对于节点的增减都只需重定位环空间中的一小部分数据，具有较好的容错性和可扩展性。</p>
+<h2 id="Hash环的数据倾斜问题"><a href="#Hash环的数据倾斜问题" class="headerlink" title="Hash环的数据倾斜问题"></a>Hash环的数据倾斜问题</h2><p>一致性Hash算法在服务节点太少时，容易因为节点分部不均匀而造成数据倾斜（被缓存的对象大部分集中缓存在某一台服务器上）问题，例如系统中只有两台服务器，其环分布如下：</p>
+<p><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fgiabt3j20cc0d5dfy" alt=""><br>此时必然造成大量数据集中到Node A上，而只有极少量会定位到Node B上。为了解决这种数据倾斜问题，一致性Hash算法引入了虚拟节点机制，即对每一个服务节点计算多个哈希，每个计算结果位置都放置一个此服务节点，称为虚拟节点。具体做法可以在服务器IP或主机名的后面增加编号来实现。</p>
+<p>例如上面的情况，可以为每台服务器计算三个虚拟节点，于是可以分别计算 “Node A#1”、“Node A#2”、“Node A#3”、“Node B#1”、“Node B#2”、“Node B#3”的哈希值，于是形成六个虚拟节点：<br><img src="http://ww1.sinaimg.cn/large/65ca5a5cly1fu9fh4ky65j20k00kbaaj" alt=""><br>同时数据定位算法不变，只是多了一步虚拟节点到实际节点的映射，例如定位到“Node A#1”、“Node A#2”、“Node A#3”三个虚拟节点的数据均定位到Node A上。这样就解决了服务节点少时数据倾斜的问题。在实际应用中，通常将虚拟节点数设置为32甚至更大，因此即使很少的服务节点也能做到相对均匀的数据分布。</p>
 
       
     </div>
@@ -396,9 +397,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/linux/" rel="tag"># linux</a>
+            <a href="/tags/算法/" rel="tag"># 算法</a>
           
-            <a href="/tags/grep/" rel="tag"># grep</a>
+            <a href="/tags/hash/" rel="tag"># hash</a>
+          
+            <a href="/tags/缓存/" rel="tag"># 缓存</a>
           
         </div>
       
@@ -411,8 +414,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/20/awk/" rel="next" title="Linux三剑客之awk">
-                <i class="fa fa-chevron-left"></i> Linux三剑客之awk
+              <a href="/2018/05/19/cgi-php-fpm/" rel="next" title="php-fmp到底是什么？">
+                <i class="fa fa-chevron-left"></i> php-fmp到底是什么？
               </a>
             
           </div>
@@ -421,8 +424,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/12/21/sed/" rel="prev" title="Linux三剑客之sed">
-                Linux三剑客之sed <i class="fa fa-chevron-right"></i>
+              <a href="/2018/07/27/常见算法/" rel="prev" title="常见排序算法">
+                常见排序算法 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -555,7 +558,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#命令格式"><span class="nav-number">1.</span> <span class="nav-text">命令格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主要参数"><span class="nav-number">2.</span> <span class="nav-text">主要参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实例"><span class="nav-number">3.</span> <span class="nav-text">实例</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#redis集群及Hahs的使用"><span class="nav-number">1.</span> <span class="nav-text">redis集群及Hahs的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是Hash一致性算法"><span class="nav-number">2.</span> <span class="nav-text">什么是Hash一致性算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hash一致性算法的容错特性"><span class="nav-number">3.</span> <span class="nav-text">Hash一致性算法的容错特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hash环的数据倾斜问题"><span class="nav-number">4.</span> <span class="nav-text">Hash环的数据倾斜问题</span></a></li></ol></div>
             
 
           </div>
